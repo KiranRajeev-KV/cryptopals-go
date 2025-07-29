@@ -32,3 +32,34 @@ XOR is a bitwise operator (used to compare two bits) that returns 1 if one bit i
 |    0    |    1    |   1    |
 |    1    |    0    |   1    |
 |    1    |    1    |   0    |
+
+#### Single Byte XOR cipher
+
+A Single Byte XOR cipher is a simple encryption technique where you XOR each byte of the plaintext with a single byte key.
+
+```text
+ciphertext = plaintext ^ key
+plaintext  = ciphertext ^ key
+```
+
+- Example:  
+  - Plaintext: "Hello"
+    - ASCII codes: 72 101 108 108 111
+    - Binary: `01001000 01100101 01101100 01101100 01101111`
+    
+    - Key: "K"
+    - Key ASCII code: 75
+    - Key Binary: `01001011`
+
+    - XOR each byte of plaintext with key:
+      - `01001000 ^ 01001011 = 00000011` (3)
+      - `01100101 ^ 01001011 = 00101110` (46)
+      - `01101100 ^ 01001011 = 00100111` (39)
+      - `01101100 ^ 01001011 = 00100111` (39)
+      - `01101111 ^ 01001011 = 00100100` (36)
+      - Resulting ciphertext (in binary): `00000011 00101110 00100111 00100111 00100100`
+      - ASCII codes of ciphertext: 3 46 39 39 36
+      - Ciphertext characters: `\x03.''$`
+
+The key can be easily found using frequency analysis or brute force, as there are only 256 possible keys (0-255).
+

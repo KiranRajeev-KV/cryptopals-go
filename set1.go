@@ -33,4 +33,13 @@ func main () {
 	xorRes := fixedXOR(decodedOp1, decodedOp2)
 	xorResEncoded:= encodeHex(xorRes)
 	fmt.Printf("XOR result : %s\n",xorResEncoded)
+
+	fmt.Println("\nChallenge 3 - Single-byte XOR cipher")
+
+	cipherHex := []byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+	cipherBytes := decodeHex(cipherHex)
+	fmt.Printf("hex decoded cipher text : %d\n",cipherBytes)
+
+	_, bestDecoded, _ := findBestSingleByteXOR(cipherBytes)
+	fmt.Printf("decoded text: %s\n", bestDecoded)
 }
