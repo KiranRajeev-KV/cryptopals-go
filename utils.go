@@ -93,3 +93,15 @@ func findBestSingleByteXOR(cipher []byte) (byte, []byte, float64) {
 
 	return bestKey, bestDecoded, bestScore
 }
+
+func repeatingKeyXOR(plaintext []byte, key []byte) []byte {
+	res := make([]byte, len(plaintext))
+	keyLen := len(key)
+
+	for i := range plaintext {
+		// 0 % 3 = 0, 1 % 3 = 1, 2 % 3 = 2, 3 % 3 = 0, 4 % 3 = 1, ...
+		res[i] = plaintext[i] ^ key[i%keyLen]
+	}
+
+	return res
+}

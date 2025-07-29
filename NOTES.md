@@ -65,3 +65,29 @@ Now, XOR each byte of the plaintext with the key:
 
 The key is easy to recover using frequency analysis or brute force, since there are only 256 possible keys (0-255).
 
+#### Repeated Key XOR cipher
+
+A Repeated Key XOR cipher is a more complex encryption technique where you XOR each byte of the plaintext with a byte from a repeating key.
+
+- **Plaintext:** `"Hello"`
+  - ASCII codes: `72 101 108 108 111`
+  - Binary: `01001000 01100101 01101100 01101100 01101111`
+
+*- **Key:** `"Key"`
+  - ASCII codes: `75 101 121`
+  - Binary: `01001011 01100101 01111001`
+  - Repeats: `01001011 01100101 01111001 01001011 01100101`
+
+Now, XOR each byte of the plaintext with the corresponding byte from the repeating key:
+
+| Plaintext Byte | Binary      | Key (K)     | XOR Result | Decimal | Ciphertext Char |
+|:--------------:|:-----------:|:-----------:|:----------:|:---------:|:---------------:|
+| H (72)         | 01001000    | 01001011    | 00000011   | 3         | `\x03`          |
+| e (101)        | 01100101    | 01100101    | 00000000   | 0         | `\x00`          |
+| l (108)        | 01101100    | 01111001    | 00010101   | 21        | `\x15`          |
+| l (108)        | 01101100    | 01001011    | 00100111   | 39        | `'`             |
+| o (111)        | 01101111    | 01100101    | 00001010   | 10        | `\n`            |
+
+- **Resulting ciphertext (binary):** `00000011 00000000 00010101 00100111 00001010`
+- **Ciphertext (ASCII):** `\x03\x00\x15'\n`
+

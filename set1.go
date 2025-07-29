@@ -68,4 +68,13 @@ func main () {
 	}
 
 	fmt.Printf("Best decoded text: %s\n", bestDecoded)
+
+	fmt.Println("\nChallenge 5 - Implement repeating-key XOR")
+
+	plaintext := []byte("Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal")
+	key := []byte("ICE")
+	fmt.Printf("Plaintext: %s\nKey: %s\n\n", plaintext, key)
+
+	ciphertext := repeatingKeyXOR(plaintext, key)
+	fmt.Printf("Ciphertext: %x\n", ciphertext)
 }
