@@ -22,3 +22,13 @@ Base64 encoding means converting your string to binary, then taking 6-bit chunks
   - Decimal: 18, 54, 37, 18  
   - Corresponding Base64 chars: `S3I=`
 
+#### XOR Comparison
+
+XOR is a bitwise operator (used to compare two bits) that returns 1 if one bit is 1 and the other is 0, otherwise it returns 0.
+
+| Input A | Input B | Result |
+|---------|---------|--------|
+|    0    |    0    |   0    |
+|    0    |    1    |   1    |
+|    1    |    0    |   1    |
+|    1    |    1    |   0    |
