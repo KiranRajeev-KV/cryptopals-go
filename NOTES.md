@@ -42,24 +42,26 @@ ciphertext = plaintext ^ key
 plaintext  = ciphertext ^ key
 ```
 
-- Example:  
-  - Plaintext: "Hello"
-  - ASCII codes: 72 101 108 108 111
+- **Plaintext:** `"Hello"`
+  - ASCII codes: `72 101 108 108 111`
   - Binary: `01001000 01100101 01101100 01101100 01101111`
-    
-  - Key: "K"
-  - Key ASCII code: 75
-  - Key Binary: `01001011`
 
-  - XOR each byte of plaintext with key:
-  - `01001000 ^ 01001011 = 00000011` (3)
-  - `01100101 ^ 01001011 = 00101110` (46)
-  - `01101100 ^ 01001011 = 00100111` (39)
-  - `01101100 ^ 01001011 = 00100111` (39)
-  - `01101111 ^ 01001011 = 00100100` (36)
-  - Resulting ciphertext (in binary): `00000011 00101110 00100111 00100111 00100100`
-  - ASCII codes of ciphertext: 3 46 39 39 36
-  - Ciphertext characters: `\x03.''$`
+- **Key:** `"K"`
+  - ASCII code: `75`
+  - Binary: `01001011`
 
-The key can be easily found using frequency analysis or brute force, as there are only 256 possible keys (0-255).
+Now, XOR each byte of the plaintext with the key:
+
+| Plaintext Byte | Binary      | Key (K)     | XOR Result | Decimal | Ciphertext Char |
+|:--------------:|:-----------:|:-----------:|:----------:|:-------:|:---------------:|
+| H (72)         | 01001000    | 01001011    | 00000011   | 3       | `\x03`          |
+| e (101)        | 01100101    | 01001011    | 00101110   | 46      | `.`             |
+| l (108)        | 01101100    | 01001011    | 00100111   | 39      | `'`             |
+| l (108)        | 01101100    | 01001011    | 00100111   | 39      | `'`             |
+| o (111)        | 01101111    | 01001011    | 00100100   | 36      | `$`             |
+
+- **Resulting ciphertext (binary):** `00000011 00101110 00100111 00100111 00100100`
+- **Ciphertext (ASCII):** `\x03.''$`
+
+> The key is easy to recover using frequency analysis or brute force, since there are only 256 possible keys (0-255).
 
