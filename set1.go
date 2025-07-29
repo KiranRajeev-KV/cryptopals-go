@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main () {
@@ -42,4 +44,28 @@ func main () {
 
 	_, bestDecoded, _ := findBestSingleByteXOR(cipherBytes)
 	fmt.Printf("decoded text: %s\n", bestDecoded)
+
+	fmt.Println("\nChallenge 4 - Detect single-character XOR")
+
+	file, err := os.ReadFile("./data/set1-challenge4.txt")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to read file: %s\n", err))
+	}
+	lines:= strings.Split(string(file),"\n")
+	
+	bestScore := 0.0
+	bestDecoded = []byte{}
+	for _, line := range lines {
+		if len(line) > 0 {
+			cipherBytes := decodeHex([]byte(line))
+			_,decoded,score := findBestSingleByteXOR(cipherBytes)
+			
+			if score > bestScore {
+				bestScore = score
+				bestDecoded = decoded
+			}
+		}
+	}
+
+	fmt.Printf("Best decoded text: %s\n", bestDecoded)
 }
