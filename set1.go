@@ -117,4 +117,18 @@ func main () {
 	aesCiphertext := base64Decode([]byte(cleanContent))
 	aesPlaintext := decryptECB(aesCiphertext, aesEncryptionKey)
 	fmt.Printf("AES decrypted plaintext: %s\n", aesPlaintext)
+
+	fmt.Println("\nChallenge 8 - Detect AES in ECB mode")
+
+	file,err = os.ReadFile("./data/set1-challenge8.txt")
+	if err != nil {
+			panic(fmt.Sprintf("Failed to read file: %s\n", err))
+	}
+
+	lineToDelete:=detectECB([]byte(file))
+	if lineToDelete == -1 {
+		fmt.Println("No ECB encrypted lines found.")
+	} else {
+		fmt.Printf("Line %d is encrypted with ECB mode.\n", lineToDelete+1)
+	}
 }

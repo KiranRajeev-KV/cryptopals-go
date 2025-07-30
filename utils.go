@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/aes"
 	"encoding/base64"
 	"encoding/hex"
@@ -244,4 +245,27 @@ func decryptECB(ciphertext []byte, key []byte) []byte {
 	plaintext := removeAESPadding(paddedPlaintext)
 
 	return plaintext
+}
+
+func detectECB(input []byte) int {
+	lines := bytes.SplitSeq(input, []byte{'\n'})
+
+	for line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		ciphertext := decodeHex([]byte(line))
+		blockCount := make(map[string]int)
+		
+		for i := 0; i+aes.BlockSize <= len(ciphertext); i += aes.BlockSize {
+			block := ciphertext[i : i+aes.BlockSize]
+			blockHex := string(encodeHex(block))
+			blockCount[blockHex]++
+			if blockCount[blockHex] > 1 {
+				return i
+			}
+		}
+	}
+	return -1 // No ECB detected
 }
