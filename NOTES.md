@@ -204,3 +204,13 @@ plaintext = ciphertext_byte ^ key_byte
 Burning 'em, if you ain't quick and nimble
 I go crazy when I hear a cymbal
 ```
+
+### AES-128 ECB Encryption
+
+AES-128 ECB (Electronic Codebook) mode encrypts data in fixed 128-bit chunks using the same key. Its biggest weakness is that identical blocks of plaintext always create identical blocks of ciphertext, which can reveal patterns in your secret message.
+
+Example:
+- Plaintext: `This is 16 chars.`
+- Key: `YELLOW SUBMARINE`
+- Ciphertext (hex encoded): `2d 7c d3 be cc 37 7d 6a d3 57 69 5d 1f 1f 27 b7 4a dd 6b 48 76 d1 35 7a 4c 27 a6 d9 b5 87 4e 56`
+
