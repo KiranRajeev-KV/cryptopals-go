@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/aes"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -146,8 +147,8 @@ func getHammingDistance(str1 []byte, str2 []byte) int {
 	return distance
 }
 
-type keySizeStrength struct { 
-	size int
+type keySizeStrength struct {
+	size               int
 	normalizedDistance float64
 }
 
@@ -206,4 +207,41 @@ func breakRepeatingKeyXOR(ciphertext []byte) ([]byte, []byte) {
 		}
 	}
 	return bestPlaintext, bestKey
+}
+
+func removeAESPadding(input []byte) []byte {
+	if len(input) == 0 {
+		return input
+	}
+
+	paddingLength := int(input[len(input)-1])
+	if paddingLength == 0 || paddingLength > len(input) {
+		panic("Invalid padding length")
+	}
+
+	for _, b := range input[len(input)-paddingLength:] {
+		if b != byte(paddingLength) {
+			panic("Invalid padding byte")
+		}
+	}
+	return input[:len(input)-paddingLength]
+}
+
+func decryptECB(ciphertext []byte, key []byte) []byte {
+	cipher, err := aes.NewCipher(key)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to create AES cipher: %s\n", err))
+	}
+
+	if len(ciphertext)%aes.BlockSize != 0 {
+		panic("Ciphertext is not a multiple of the block size")
+	}
+
+	paddedPlaintext := make([]byte, len(ciphertext))
+	for bs, be := 0, aes.BlockSize; bs < len(ciphertext); bs, be = bs+aes.BlockSize, be+aes.BlockSize {
+		cipher.Decrypt(paddedPlaintext[bs:be], ciphertext[bs:be])
+	}
+	plaintext := removeAESPadding(paddedPlaintext)
+
+	return plaintext
 }

@@ -104,4 +104,17 @@ func main () {
 	fmt.Printf("Best decoded plaintext: %s\n", bestPlaintext)
 	fmt.Printf("Best key: %s\n", bestKey)
 	// fmt.Printf("Best key length: %d\n", len(bestKey))
+
+	fmt.Println("\nChallenge 7 - AES in ECB mode")
+
+	file,err = os.ReadFile("./data/set1-challenge7.txt")
+	if err != nil {
+			panic(fmt.Sprintf("Failed to read file: %s\n", err))
+	}
+
+	aesEncryptionKey := []byte("YELLOW SUBMARINE")
+	cleanContent = strings.ReplaceAll(string(file), "\n", "")
+	aesCiphertext := base64Decode([]byte(cleanContent))
+	aesPlaintext := decryptECB(aesCiphertext, aesEncryptionKey)
+	fmt.Printf("AES decrypted plaintext: %s\n", aesPlaintext)
 }
