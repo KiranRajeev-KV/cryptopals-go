@@ -131,4 +131,6 @@ func main () {
 	} else {
 		fmt.Printf("Line %d is encrypted with ECB mode.\n", lineToDelete+1)
 	}
+
+	fmt.Println("Completed all challenges in Set 1. :)")
 }
