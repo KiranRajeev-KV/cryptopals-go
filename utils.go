@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"maps"
+	"sort"
 	"unicode"
 )
 
@@ -21,6 +23,15 @@ func encodeHex(input []byte) []byte {
 	encoded := make([]byte, hex.EncodedLen(len(input)))
 	hex.Encode(encoded, input)
 	return encoded
+}
+
+func base64Decode(input []byte) []byte {
+	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(input)))
+	_, err := base64.StdEncoding.Decode(decoded, input)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to decode base64 %s\n", err))
+	}
+	return decoded
 }
 
 func base64Encode(input []byte) []byte {
@@ -41,21 +52,21 @@ func fixedXOR(op1 []byte, op2 []byte) []byte {
 }
 
 func getCharWeight(char byte) float64 {
-    // got the freq from wikipedia ;)
-    freq := map[byte]float64{
-        ' ': 0.1874,
-        'a': 0.08167, 'b': 0.01492, 'c': 0.02782, 'd': 0.04253,
-        'e': 0.12702, 'f': 0.02228, 'g': 0.02015, 'h': 0.06094,
-        'i': 0.06966, 'j': 0.00153, 'k': 0.00772, 'l': 0.04025,
-        'm': 0.02406, 'n': 0.06749, 'o': 0.07507, 'p': 0.01929,
-        'q': 0.00095, 'r': 0.05987, 's': 0.06327, 't': 0.09056,
-        'u': 0.02758, 'v': 0.00978, 'w': 0.02360, 'x': 0.00150,
-        'y': 0.01974, 'z': 0.00074,
-    }
+	// got the freq from wikipedia ;)
+	freq := map[byte]float64{
+		' ': 0.1874,
+		'a': 0.08167, 'b': 0.01492, 'c': 0.02782, 'd': 0.04253,
+		'e': 0.12702, 'f': 0.02228, 'g': 0.02015, 'h': 0.06094,
+		'i': 0.06966, 'j': 0.00153, 'k': 0.00772, 'l': 0.04025,
+		'm': 0.02406, 'n': 0.06749, 'o': 0.07507, 'p': 0.01929,
+		'q': 0.00095, 'r': 0.05987, 's': 0.06327, 't': 0.09056,
+		'u': 0.02758, 'v': 0.00978, 'w': 0.02360, 'x': 0.00150,
+		'y': 0.01974, 'z': 0.00074,
+	}
 
-    // Normalize char to lowercase if it's a letter
-    lower := byte(unicode.ToLower(rune(char)))
-    return freq[lower]
+	// Normalize char to lowercase if it's a letter
+	lower := byte(unicode.ToLower(rune(char)))
+	return freq[lower]
 }
 
 func scoreText(text []byte) float64 {
@@ -104,4 +115,95 @@ func repeatingKeyXOR(plaintext []byte, key []byte) []byte {
 	}
 
 	return res
+}
+
+func getHammingWeights() map[byte]int {
+	weights := map[byte]int{0: 0}
+	pow2 := byte(1)
+
+	for range 8 {
+		copyMap := make(map[byte]int)
+		maps.Copy(copyMap, weights)
+		for k, v := range copyMap {
+			weights[k+pow2] = v + 1
+		}
+		pow2 <<= 1
+	}
+	return weights
+}
+
+func getHammingDistance(str1 []byte, str2 []byte) int {
+	if len(str1) != len(str2) {
+		panic(fmt.Sprintf("Strings must be of equal length (str1: %d bytes, str2: %d bytes)", len(str1), len(str2)))
+	}
+	res := fixedXOR(str1, str2)
+
+	weights := getHammingWeights()
+	distance := 0
+	for _, b := range res {
+		distance += weights[b]
+	}
+	return distance
+}
+
+type keySizeStrength struct { 
+	size int
+	normalizedDistance float64
+}
+
+func getKeySizes(ciphertext []byte) []keySizeStrength {
+	allKeyLengths := make([]keySizeStrength, 0)
+
+	for keySize := 2; keySize < 40; keySize++ {
+		var totalDistance float64
+		for i := range 4 {
+			start := keySize * i
+			end := start + keySize
+			nextEnd := end + keySize
+			if nextEnd > len(ciphertext) {
+				break
+			}
+			totalDistance += float64(getHammingDistance(ciphertext[start:end], ciphertext[end:nextEnd]))
+		}
+		normalizedDistance := totalDistance / float64(keySize)
+		allKeyLengths = append(allKeyLengths, keySizeStrength{size: keySize, normalizedDistance: normalizedDistance})
+	}
+	sort.Slice(allKeyLengths, func(i, j int) bool {
+		return allKeyLengths[i].normalizedDistance < allKeyLengths[j].normalizedDistance
+	})
+	return allKeyLengths
+}
+
+func breakRepeatingKeyXOR(ciphertext []byte) ([]byte, []byte) {
+	keyStrengths := getKeySizes(ciphertext)
+	var bestPlaintext []byte
+	var bestKey []byte
+	var bestScore float64
+
+	for i := range 5 {
+		keySize := keyStrengths[i].size
+
+		// Split ciphertext into keySize chunks, each chunk contains bytes encrypted with the same key byte
+		blocks := make([][]byte, keySize)
+		for j, b := range ciphertext {
+			blocks[j%keySize] = append(blocks[j%keySize], b)
+		}
+
+		// Find key byte for each block
+		key := make([]byte, keySize)
+		for k := range blocks {
+			kb, _, _ := findBestSingleByteXOR(blocks[k])
+			key[k] = kb
+		}
+
+		// Decrypt ciphertext with repeating key
+		plaintext := repeatingKeyXOR(ciphertext, key)
+		score := scoreText(plaintext)
+		if score > bestScore || i == 0 {
+			bestPlaintext = plaintext
+			bestKey = key
+			bestScore = score
+		}
+	}
+	return bestPlaintext, bestKey
 }

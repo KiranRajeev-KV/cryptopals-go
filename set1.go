@@ -63,9 +63,9 @@ func main () {
 			if score > bestScore {
 				bestScore = score
 				bestDecoded = decoded
+				}
 			}
 		}
-	}
 
 	fmt.Printf("Best decoded text: %s\n", bestDecoded)
 
@@ -77,4 +77,31 @@ func main () {
 
 	ciphertext := repeatingKeyXOR(plaintext, key)
 	fmt.Printf("Ciphertext: %x\n", ciphertext)
+
+	fmt.Println("\nChallenge 6 - Break repeating-key XOR")
+
+	// hammingWeights:=getHammingWeights()
+	// for key, value := range hammingWeights {
+	// 	fmt.Printf("Key: %b, Value: %d\n", key, value)
+
+	// str1:= []byte("this is a test")
+	// str2:= []byte("wokka wokka!!!")
+	// hammingDist:= getHammingDistance(str1,str2)
+	// fmt.Printf("hamming distance : %d\n",hammingDist)
+
+	file,err = os.ReadFile("./data/set1-challenge6.txt")
+	if err != nil {
+			panic(fmt.Sprintf("Failed to read file: %s\n", err))
+	}
+
+	cleanContent := strings.ReplaceAll(string(file), "\n", "")
+	ciphertext = base64Decode([]byte(cleanContent))
+
+	// keyLen := getKeySizes(ciphertext)
+	// fmt.Printf("Estimated key length(s): %v\n", keyLen)
+
+	bestPlaintext, bestKey := breakRepeatingKeyXOR(ciphertext)
+	fmt.Printf("Best decoded plaintext: %s\n", bestPlaintext)
+	fmt.Printf("Best key: %s\n", bestKey)
+	// fmt.Printf("Best key length: %d\n", len(bestKey))
 }
